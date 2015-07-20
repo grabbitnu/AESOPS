@@ -7,7 +7,7 @@ import numpy as np
 import random as ra
 from .rngint import *
 from .numstringparser import NumericStringParser
-
+from PyQt5.QtCore import QDateTime, QTime,QDate
 
 class Arith():
     def __init__(self):
@@ -16,7 +16,7 @@ class Arith():
         self.currentOperator='+'
         self.Operators=['+','-','*','/']
         self.nOperands=2
-        self.nTest=100
+        self.nTest=20
         self.elapseTime=0.0
         self.texts=[]
 
@@ -27,7 +27,7 @@ class Arith():
                         ['+ -','+ - *','+ - * /'],
                         ['+ - ()','+ - * ()','+ - * / ()']]
 
-        self.mode=0
+        self.mode=1
         self.correctResults=np.zeros(self.nTest)
         self.nsp=NumericStringParser()
         self.minnumber=0
@@ -36,7 +36,17 @@ class Arith():
         self.biggest=-self.smallest
         self.timerOn=False
         self.empty=True
+        self.deaddatetime=QDateTime(QDate(2018,1,1),QTime(0,0,0))
         return
+
+    def checkDeadDateTime(self):
+        print(QDate.currentDate())
+        print(QTime.currentTime())
+        datetime=QDateTime(QDate.currentDate(),QTime.currentTime())
+        if(datetime<=self.deaddatetime):
+            return True
+        else:
+            return False
 
     def getModeText(self):
         return self.modeTexts[self.diffiLevel][self.mode]

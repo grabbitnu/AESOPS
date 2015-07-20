@@ -17,6 +17,7 @@ from .Ui_mainwindow import Ui_MainWindow
 from common.arith import Arith
 from common.numstringparser import NumericStringParser
 from ui.preference import DialogPreference
+from ui.regdialog import DialogRegister
 
 __arith_title__= \
 "AESOPS\n" \
@@ -36,6 +37,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         @param parent reference to the parent widget (QWidget)
         """
         super(MainWindow, self).__init__(parent)
+        self.regdialog=DialogRegister()
         self.setupUi(self)
         self.arith=None
         self.preference=DialogPreference()
@@ -48,6 +50,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.qtime=QTime()
         self.timeStart=0
         self.timeElapsed=0
+        self.modeModel=None
+        self.diffiModel=None
 
     def createConnections(self):
         # self.actionNew_Test.triggered.connect(self.on_btnNew_clicked)
@@ -56,6 +60,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tableTestpaper.itemChanged.connect(self.on_tableTestPaper_itemChanged)
         self.cmbDifficulty.currentIndexChanged.connect(self.on_cmbDifficulty_currentIndexChanged)
         self.cmbMode.currentIndexChanged.connect(self.on_cmbMode_currentIndexChanged)
+
         return
 
     def setArith(self,arith):
@@ -64,41 +69,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setDifficulty()
         self.setMode()
-
-        if not (arith.timerOn):
+        if arith.timerOn==False:
             self.labelTimeName.hide()
             self.labelTime.hide()
-
         self.preference.setArith(arith)
         return
 
-    def setMode(self):
-        self.modeModel = QStringListModel(self.arith.modeTexts[self.arith.diffiLevel])
-        self.cmbMode.setModel(self.modeModel)
+    def setMode(self): # only called once for initialization of main window
+        if self.modeModel is None:
+            self.modeModel = QStringListModel()
+            self.cmbMode.setModel(self.modeModel)
+        self.modeModel.setStringList(self.arith.modeTexts[self.arith.diffiLevel])
         self.cmbMode.setCurrentIndex(self.arith.mode)
         return
+
     def setDifficulty(self):
-        # diffi=QListWidgetItem()
-        # diffi.setText(self.arith.difficulties)
-        # self.cmbDifficulty.setModel(diffi)
-        self.diffiModel=QStringListModel(self.arith.difficulties)
-        self.cmbDifficulty.setModel(self.diffiModel)
+        if self.diffiModel is None:
+            self.diffiModel=QStringListModel()
+            self.cmbDifficulty.setModel(self.diffiModel)
+        self.diffiModel.setStringList(self.arith.difficulties)
         self.cmbDifficulty.setCurrentIndex(self.arith.diffiLevel)
         return
 
     def on_cmbMode_currentIndexChanged(self):
-        self.arith.mode=self.cmbMode.currentIndex()
-        # self.cmbMode.setCurrentIndex(self.arith.mode)
+        if self.arith:
+            if self.cmbMode.currentIndex()>=0:
+                self.arith.mode=self.cmbMode.currentIndex()
+            else:
+                if self.arith.mode>=len(self.arith.modeTexts[self.arith.diffiLevel]):
+                    self.arith.mode=0
+                self.cmbMode.setCurrentIndex(self.arith.mode)
         return
     def on_cmbDifficulty_currentIndexChanged(self):
-        self.arith.diffiLevel=self.cmbDifficulty.currentIndex()
-        self.cmbDifficulty.setCurrentIndex(self.arith.diffiLevel)
-
-        self.modeModel = QStringListModel(self.arith.modeTexts[self.arith.diffiLevel])
-        self.cmbMode.setModel(self.modeModel)
-        if self.arith.mode>=len(self.arith.modeTexts[self.arith.diffiLevel]):
-            self.arith.mode=0
-        self.cmbMode.setCurrentIndex(self.arith.mode)
+        if self.arith:
+            self.arith.diffiLevel=self.cmbDifficulty.currentIndex()
+            if self.modeModel:
+                self.modeModel.setStringList(self.arith.modeTexts[self.arith.diffiLevel])
         return
 
     @pyqtSlot()
@@ -275,37 +281,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if (i==2):
                     ncol=len(row)
                     self.arith.nDataColumn=int(ncol/3)
-                    # print(self.arith.nDataColumn)
                 i+=1
             nrowfile=i
             nrow=i-2
-            # print(nrow)
-            # self.tableTestpaper.setRowCount(nrow)
-            # self.tableTestpaper.setColumnCount(ncol)
             stream.seek(0)
             i=0
             for row in reader:
                 if (i==nrowfile-1):
                     ncol=int(len(row)/3)
-                    # print(ncol)
                     self.arith.nTest=(nrow-1)*self.arith.nDataColumn+ncol
-                    # self.arith.nDataColumn=int(ncol/3)
-                    # print(self.arith.nDataColumn)
                 i+=1
 
-
             self.arith.new()
-            # print(self.arith.nTest)
-            # print(self.arith.nDataColumn)
-            # print()
-            # self.newTestTable()
-            # self.on_btnNew_clicked()
+
             irow=0
             i=0
             stream.seek(0)
             for row in reader:
                 if (irow>=2):
-                    # print(irow)
                     if irow<nrowfile-1:
                         ncol1=self.arith.nDataColumn
                     else:
@@ -313,27 +306,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     icol=0
                     for j in range(icol,len(row),3):
                         text=row[j]
-                        # item=self.tableTestpaper.item(irow-2,j)
-                        # if not item:
-                        #     item=QTableWidgetItem()
-                        #     flags=Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                        #     item.setFlags(flags)
-                        #     self.tableTestpaper.setItem(irow-2,j,item)
-                        # self.tableTestpaper.item(irow-2,j).setText(text)
                         self.arith.texts[i]=text
-                        # print(irow,j,self.arith.texts[i])
                         i+=1
                 irow+=1
             self.arith.calcResults()
             self.resetWidgets()
-            # self.caseIsOpen=True
-        # self.arith.empty=False
         return
     def saveFile(self):
         fname,  _ = (QFileDialog.getSaveFileName(self, \
             "Save File As", "./", \
             "CSV File (*.csv);;Text file (*.txt);;All Files (*)")) #???
-        # print(fname)
         if not fname:
             # QMessageBox.information(self, "Unable to open file",
             #         "There was an error opening \"%s\"" % fname)
@@ -353,14 +335,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     else:
                         rowdata.append(str('N/A'))
                 writer.writerow(rowdata)
-        # try:
-        #     f = open(fname, 'w')
-        # except IOError:
-        #     QtGui.QMessageBox.information(self, "Unable to write file",
-        #             "There was an error when writing to \"%s\"" % fname)
-        #     return
-        # self.arith.saveToHandle(f)
-        # f.close()
         self.caseIsOpen=False
         return
     @pyqtSlot()
@@ -456,18 +430,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         Slot documentation goes here.
         """
-        self.preference.setArith(self.arith)
-        if(self.preference.exec_()==QDialog.Accepted):
-            self.arith.digit, self.arith.nTest, \
-            self.arith.NOperands, self.arith.nDataColumn, \
-            self.arith.mode, self.arith.timeOn=tuple(self.preference.params)
-
-        self.answers=np.zeros(self.arith.getnTest())+self.arith.smallest
-        if not self.arith.timerOn:
-            self.labelTimeName.hide()
-            self.labelTime.hide()
-        else:
-            self.labelTimeName.show()
+        self.preference.showArith()
+        if self.preference.exec_()==QDialog.Accepted:
+            self.answers=np.zeros(self.arith.getnTest())+self.arith.smallest
+            if not self.arith.timerOn:
+                self.labelTimeName.hide()
+                self.labelTime.hide()
+            else:
+                self.labelTimeName.show()
         return
 
     @pyqtSlot()
@@ -511,6 +481,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Slot documentation goes here.
         """
         self.on_btnMark_clicked()
+        return
+
+    @pyqtSlot()
+    def on_actionRegister_triggered(self):
+        if self.regdialog.exec_()==QDialog.Accepted:
+            print('reg OK')
+        # else:
         return
 
 def main():

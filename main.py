@@ -9,12 +9,17 @@ import sys, os
 #     print(modulepath)
 #     sys.path.append(modulepath)
 
+# TODO
+# copyright pretection
+# QTime check, years of user to limit
+# SN check
+
 from math import *
 import time
 from ui.mainwindow import MainWindow
 from common.rngint import RandomInteger
 from common.arith import Arith
-# import aesops_rc
+import aesops_rc
 
 def main():
     from PyQt5.QtWidgets import QApplication
@@ -38,7 +43,9 @@ def main():
     # splash.close()
 
     arith=Arith()
-
+    if arith.checkDeadDateTime()==False:
+        print("License out of date. Quit now")
+        return
     mainwindow = MainWindow()
     mainwindow.setArith(arith)
     mainwindow.show()

@@ -22,46 +22,32 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="4" column="1">
-         <widget class="QComboBox" name="cmbTestModes"/>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="leNOperands"/>
         </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="leDigits"/>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="leTestNum"/>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>How many tests? </string>
           </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="leTestNum"/>
-        </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="leNDataColumn"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Modes</string>
+          <property name="buddy">
+           <cstring>leTestNum</cstring>
           </property>
          </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="leDigits"/>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
            <string>Digits</string>
           </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="leNOperands"/>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Data Column</string>
+          <property name="buddy">
+           <cstring>leDigits</cstring>
           </property>
          </widget>
         </item>
@@ -70,17 +56,23 @@
           <property name="text">
            <string>Operands</string>
           </property>
+          <property name="buddy">
+           <cstring>leNOperands</cstring>
+          </property>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_6">
+         <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Difficulty</string>
+           <string>Data Column</string>
+          </property>
+          <property name="buddy">
+           <cstring>leNDataColumn</cstring>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QComboBox" name="cmbDifficulty"/>
+         <widget class="QLineEdit" name="leNDataColumn"/>
         </item>
        </layout>
       </item>
@@ -132,6 +124,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>leDigits</tabstop>
+  <tabstop>leTestNum</tabstop>
+  <tabstop>leNOperands</tabstop>
+  <tabstop>rbtnTimer</tabstop>
+  <tabstop>btnApply</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -141,8 +140,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>349</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -157,8 +156,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>417</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
